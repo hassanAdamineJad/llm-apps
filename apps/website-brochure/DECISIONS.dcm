@@ -1,0 +1,26 @@
+# Website Brochure decision log
+
+## 2026-11-19 — Read only the submitted page
+
+**Decision:** Version 1 fetches and extracts readable text from only the exact page submitted by the user (plus bounded HTTP redirects). It does not crawl same-site links.
+
+**Reason:** A single-page scope keeps provenance understandable, latency bounded, and SSRF protections auditable.
+
+**Trade-off:** JavaScript-only pages and sparse landing pages may not provide enough source material; the app reports that limitation instead of filling gaps.
+
+## 2026-11-19 — Use a small provider boundary with one output schema
+
+**Decision:** OpenAI Responses and Ollama Chat are implemented behind the same `BrochureGenerator` protocol and both must return the same strict Pydantic `GeneratedContent` schema.
+
+**Reason:** Provider selection stays entirely server-side while the route and browser receive a stable application-level result.
+
+**Trade-off:** Provider-specific features are intentionally limited to structured-output configuration, and models that cannot reliably produce the schema are rejected.
+
+## 2026-11-19 — Keep brochure styling in the browser
+
+**Decision:** The model returns structured text only. App-owned HTML and CSS render three themes and an accent color selected after generation.
+
+**Reason:** Theme changes are instant, safe to render with `textContent`, and do not refetch the page or spend another model call.
+
+**Trade-off:** Version 1 themes use a shared layout rather than model-designed or fully custom brochure layouts.
+
