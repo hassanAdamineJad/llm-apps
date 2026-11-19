@@ -8,125 +8,153 @@
     <link rel="stylesheet" href="/static/styles.css" />
     <script src="/static/app.js" defer></script>
   </head>
-  <body>
-    <header class="masthead">
+  <body class="mode-initial">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="app-header">
       <a class="wordmark" href="/" aria-label="Website Brochure home">
-        <span class="wordmark-mark" aria-hidden="true">WB</span>
+        <span class="wordmark-mark" aria-hidden="true">W</span>
         <span>Website Brochure</span>
       </a>
-      <p class="scope-note">One submitted page · No crawling</p>
+      <span class="scope-note">One page in, one brochure out</span>
     </header>
 
-    <main>
-      <section class="hero" aria-labelledby="page-title">
-        <div>
-          <p class="eyebrow">Source-led brochure maker</p>
-          <h1 id="page-title">Make the useful parts<br />of a web page <em>print-ready.</em></h1>
-        </div>
-        <p class="hero-copy">
-          Submit a public page. The app separates a factual summary from polished brochure copy,
-          grounded only in text it can read on that page.
-        </p>
-      </section>
-
-      <section class="workspace" aria-label="Brochure generator">
-        <form id="generate-form" class="input-panel">
-          <div class="panel-heading">
-            <span class="step-label">Source</span>
-            <span class="step-index">01</span>
+    <main id="main-content" class="app-main">
+      <div class="app-layout">
+        <section id="composer" class="composer" aria-labelledby="page-title">
+          <div class="composer-heading">
+            <h1 id="page-title">Create a brochure</h1>
+            <p>We’ll use the text on this page.</p>
           </div>
 
-          <label for="website-url">Public website URL</label>
-          <input
-            id="website-url"
-            name="website_url"
-            type="url"
-            placeholder="https://example.com/about"
-            required
-            autocomplete="url"
-          />
+          <form id="generate-form" novalidate>
+            <div class="field-group url-group">
+              <label for="website-url">Website URL</label>
+              <input
+                id="website-url"
+                name="website_url"
+                type="url"
+                inputmode="url"
+                placeholder="https://example.com/about"
+                required
+                autocomplete="url"
+                aria-describedby="form-error"
+              />
+              <p id="form-error" class="form-error" role="alert" tabindex="-1" hidden></p>
+            </div>
 
-          <label for="category">Brochure category</label>
-          <div class="select-wrap">
-            <select id="category" name="category">
-              <option value="business_overview">Business Overview</option>
-              <option value="product_service_spotlight">Product or Service Spotlight</option>
-              <option value="event_program_overview">Event or Program Overview</option>
-            </select>
-          </div>
-
-          <p class="field-note">
-            V1 reads only this page’s server-rendered HTML. JavaScript-only or sparse pages may
-            not contain enough readable material.
-          </p>
-
-          <button id="generate-button" class="primary-button" type="submit">
-            <span class="button-label">Generate brochure</span>
-            <span class="spinner" aria-hidden="true"></span>
-          </button>
-
-          <div id="status" class="status" role="status" aria-live="polite"></div>
-        </form>
-
-        <div class="result-column">
-          <section id="empty-state" class="empty-state">
-            <span class="empty-glyph" aria-hidden="true">Aa</span>
-            <h2>Your brochure starts here</h2>
-            <p>Choose a focused source page with enough detail for the category you select.</p>
-          </section>
-
-          <div id="results" class="results" hidden>
-            <section class="summary-card" aria-labelledby="summary-heading">
-              <div class="panel-heading">
-                <span id="summary-heading" class="step-label">Factual page summary</span>
-                <span class="step-index">02</span>
+            <div class="field-group category-group">
+              <label for="category">Brochure type</label>
+              <div class="select-wrap">
+                <select id="category" name="category">
+                  <option value="business_overview">Business Overview</option>
+                  <option value="product_service_spotlight">Product or Service Spotlight</option>
+                  <option value="event_program_overview">Event or Program Overview</option>
+                </select>
               </div>
-              <p id="summary-text"></p>
-            </section>
+            </div>
 
-            <section id="insufficient-card" class="insufficient-card" hidden>
-              <h2>More source detail needed</h2>
-              <p id="feedback-text"></p>
-            </section>
+            <button id="generate-button" class="primary-button" type="submit">
+              <span class="button-label">Generate brochure</span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
 
-            <section id="brochure-area" hidden>
-              <div class="preview-toolbar" aria-label="Preview controls">
-                <div>
-                  <span class="control-label">Theme</span>
-                  <div class="theme-switcher" role="group" aria-label="Brochure theme">
-                    <button class="theme-button active" type="button" data-theme="minimal">Minimal</button>
-                    <button class="theme-button" type="button" data-theme="corporate">Corporate</button>
-                    <button class="theme-button" type="button" data-theme="bold">Bold</button>
-                  </div>
+            <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section id="preview-workspace" class="preview-workspace" aria-label="Brochure preview">
+          <header id="workspace-bar" class="workspace-bar" hidden>
+            <div class="source-identity">
+              <span class="source-mark" aria-hidden="true"></span>
+              <div>
+                <span class="meta-label">Source</span>
+                <a id="source-domain-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+              </div>
+            </div>
+
+            <details class="summary-disclosure">
+              <summary>Source summary</summary>
+              <div class="summary-popover"><p id="summary-text"></p></div>
+            </details>
+
+            <div id="workspace-progress" class="workspace-progress" role="status" aria-live="polite" hidden>
+              <span class="progress-dot" aria-hidden="true"></span>
+              Drafting replacement…
+            </div>
+
+            <div class="workspace-actions">
+              <button id="edit-source-button" class="text-button" type="button">Edit source</button>
+              <button id="print-button" class="print-button" type="button">Print / Save PDF</button>
+            </div>
+          </header>
+
+          <div class="document-stage">
+            <aside id="appearance-panel" class="appearance-panel" aria-label="Brochure appearance" hidden>
+              <div class="appearance-group">
+                <h2>Layout</h2>
+                <div class="theme-grid" role="group" aria-label="Brochure layout">
+                  <button class="theme-card selected" type="button" data-theme="minimal" aria-pressed="true">
+                    <span class="theme-thumbnail mini-minimal" aria-hidden="true">
+                      <span class="mini-kicker"></span><span class="mini-title"></span>
+                      <span class="mini-rule"></span><span class="mini-copy"></span>
+                      <span class="mini-copy short"></span>
+                    </span>
+                    <span>Minimal</span>
+                  </button>
+                  <button class="theme-card" type="button" data-theme="corporate" aria-pressed="false">
+                    <span class="theme-thumbnail mini-corporate" aria-hidden="true">
+                      <span class="mini-band"></span><span class="mini-title"></span>
+                      <span class="mini-columns"><i></i><i></i></span>
+                    </span>
+                    <span>Corporate</span>
+                  </button>
+                  <button class="theme-card" type="button" data-theme="bold" aria-pressed="false">
+                    <span class="theme-thumbnail mini-bold" aria-hidden="true">
+                      <span class="mini-block"></span><span class="mini-title"></span>
+                      <span class="mini-copy"></span>
+                    </span>
+                    <span>Bold</span>
+                  </button>
                 </div>
-                <label class="color-control" for="accent-color">
-                  <span class="control-label">Accent</span>
-                  <input id="accent-color" type="color" value="#ff5c35" />
-                </label>
-                <button id="print-button" class="secondary-button" type="button">Print / Save PDF</button>
               </div>
 
-              <article id="brochure-preview" class="brochure theme-minimal">
-                <div class="brochure-kicker">Brochure</div>
-                <h2 id="brochure-headline"></h2>
-                <p id="brochure-intro" class="brochure-intro"></p>
-                <div id="brochure-sections" class="brochure-sections"></div>
-                <p id="brochure-cta" class="brochure-cta" hidden></p>
-                <footer class="brochure-source">
-                  <span>Source</span>
-                  <a id="source-link" href="#" target="_blank" rel="noopener noreferrer"></a>
-                </footer>
-              </article>
-            </section>
-          </div>
-        </div>
-      </section>
-    </main>
+              <fieldset class="appearance-group accent-group">
+                <legend>Accent</legend>
+                <div class="swatch-row">
+                  <button class="color-swatch selected" type="button" data-color="#c85c3c" aria-label="Terracotta accent" aria-pressed="true" style="--swatch: #c85c3c"></button>
+                  <button class="color-swatch" type="button" data-color="#245c4f" aria-label="Forest accent" aria-pressed="false" style="--swatch: #245c4f"></button>
+                  <button class="color-swatch" type="button" data-color="#365f91" aria-label="Blue accent" aria-pressed="false" style="--swatch: #365f91"></button>
+                  <button class="color-swatch" type="button" data-color="#d5a52e" aria-label="Ochre accent" aria-pressed="false" style="--swatch: #d5a52e"></button>
+                  <label class="custom-color" aria-label="Custom accent color">
+                    <input id="accent-color" type="color" value="#c85c3c" />
+                    <span aria-hidden="true">+</span>
+                  </label>
+                </div>
+              </fieldset>
+            </aside>
 
-    <footer class="site-footer">
-      <p>Generated copy should be reviewed before publication.</p>
-      <p>Source text is treated as untrusted material.</p>
-    </footer>
+            <div class="document-column">
+              <div id="example-label" class="example-label">Example</div>
+              <div class="paper-edge">
+                <article id="brochure-preview" class="brochure theme-minimal is-example" aria-label="Example brochure">
+                  <header class="brochure-masthead">
+                    <p class="brochure-kicker">Overview</p>
+                    <h2 id="brochure-headline"></h2>
+                  </header>
+                  <p id="brochure-intro" class="brochure-intro"></p>
+                  <div id="brochure-sections" class="brochure-sections"></div>
+                  <p id="brochure-cta" class="brochure-cta" hidden></p>
+                  <footer class="brochure-source">
+                    <span>Source</span>
+                    <a id="source-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+                  </footer>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
   </body>
 </html>
-

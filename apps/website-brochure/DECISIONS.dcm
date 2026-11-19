@@ -24,3 +24,11 @@
 
 **Trade-off:** Version 1 themes use a shared layout rather than model-designed or fully custom brochure layouts.
 
+## 2026-11-19 — Shift focus from source entry to the document
+
+**Decision:** The first visit centers a compact source form beside a local example. After generation, the form collapses and the brochure becomes the primary workspace, with source context, styling, and print actions arranged around it. Editing explicitly restores the saved URL and category while keeping the last successful document available.
+
+**Reason:** Entering a URL and reviewing a brochure are different tasks. Giving each state a clear visual priority reduces first-visit friction and gives the generated document enough room for meaningful review.
+
+**Trade-off:** The frontend keeps a small amount of view state so it can preserve a successful result through replacement loading and errors. The generation API and structured content model remain unchanged.
+

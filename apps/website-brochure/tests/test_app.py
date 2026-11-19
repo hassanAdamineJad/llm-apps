@@ -52,7 +52,23 @@ def test_ui_is_served() -> None:
 
     assert response.status_code == 200
     assert "Website Brochure" in response.text
-    assert "One submitted page" in response.text
+    assert "Create a brochure" in response.text
+    assert "We’ll use the text on this page." in response.text
+    assert "Example" in response.text
+    assert "Source summary" in response.text
+
+
+def test_frontend_keeps_rendering_safe_and_appearance_changes_local() -> None:
+    static_dir = Path(__file__).parents[1] / "src" / "website_brochure" / "static"
+    script = (static_dir / "app.js").read_text()
+    styles = (static_dir / "styles.css").read_text()
+
+    assert "innerHTML" not in script
+    assert script.count('fetch("/api/generate"') == 1
+    assert "applyTheme(button.dataset.theme)" in script
+    assert "applyAccent(accentColor.value)" in script
+    assert "@media (max-width: 640px)" in styles
+    assert "@media print" in styles
 
 
 def test_generation_with_fixture_page_and_fake_provider() -> None:
