@@ -369,6 +369,45 @@ select { appearance: none; padding-right: 42px; }
   box-shadow: 0 18px 50px rgba(32, 39, 34, 0.11);
 }
 
+.generation-metrics {
+  max-width: 920px;
+  margin: 12px auto 0;
+  border: 1px solid rgba(24, 33, 28, 0.14);
+  border-radius: 8px;
+  background: rgba(251, 250, 246, 0.82);
+}
+
+.generation-metrics summary {
+  padding: 11px 14px;
+  color: #465149;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.generation-metrics[open] summary { border-bottom: 1px solid var(--line); }
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--line);
+}
+.metrics-grid > div { min-width: 0; padding: 12px 14px; background: var(--surface); }
+.metrics-grid dt {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.metrics-grid dd { margin: 0; font-size: 0.82rem; font-weight: 750; overflow-wrap: anywhere; }
+.metric-model { grid-column: span 2; }
+.metrics-grid .status-success { color: #236246; }
+.metrics-grid .status-failed { color: var(--error); }
+
 .brochure {
   --accent: #c85c3c;
   --accent-ink: #fff;
@@ -508,6 +547,7 @@ select { appearance: none; padding-right: 42px; }
   .theme-card { padding: 6px 3px; font-size: 0.72rem; }
   .theme-thumbnail { width: 64px; height: 46px; }
   .paper-edge { padding: 5px; }
+  .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .brochure { min-height: 0; }
   .theme-minimal { padding: 31px 25px; }
   .theme-minimal .brochure-masthead h2 { font-size: 2.55rem; }
@@ -534,7 +574,7 @@ select { appearance: none; padding-right: 42px; }
 @media print {
   @page { size: auto; margin: 13mm; }
   html, body { background: #fff !important; }
-  .app-header, .composer, .workspace-bar, .appearance-panel, .example-label { display: none !important; }
+  .app-header, .composer, .workspace-bar, .appearance-panel, .example-label, .generation-metrics { display: none !important; }
   .app-main, .app-layout, .preview-workspace, .document-stage, .document-column, .paper-edge {
     display: block !important;
     width: auto !important;

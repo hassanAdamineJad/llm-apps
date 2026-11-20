@@ -32,3 +32,19 @@
 
 **Trade-off:** The frontend keeps a small amount of view state so it can preserve a successful result through replacement loading and errors. The generation API and structured content model remain unchanged.
 
+## 2026-11-20 — Log provider-native generation metrics
+
+**Decision:** Each provider records one structured server-side generation event with provider, model, elapsed time, success, provider-reported token counts, and prompt-cache reuse when available. Successful API responses also include that safe metrics subset for the local UI. Missing counters remain null.
+
+**Reason:** This establishes a trustworthy observability baseline without changing the public API or introducing storage and pricing concerns.
+
+**Trade-off:** Metrics are request-scoped rather than stored historically, and Ollama total tokens are available only when both prompt and evaluation counts are present.
+
+## 2026-11-20 — Estimate cost only from explicit pricing
+
+**Decision:** OpenAI cost estimates use a small, dated allowlist of standard per-token prices and distinguish regular input, cached input, and output tokens. Unknown models, incomplete usage, and Ollama return no estimate.
+
+**Reason:** A narrow pricing table makes assumptions visible and prevents local compute or unverified model rates from appearing as API billing data.
+
+**Trade-off:** The estimate must be reviewed when pricing changes and intentionally excludes account-specific discounts, regional uplifts, taxes, and non-token charges.
+

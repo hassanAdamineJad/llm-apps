@@ -63,7 +63,23 @@ class GeneratedContent(BaseModel):
         return self
 
 
+class GenerationMetrics(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["openai", "ollama"]
+    model: str
+    input_tokens: int | None = Field(default=None, ge=0)
+    output_tokens: int | None = Field(default=None, ge=0)
+    total_tokens: int | None = Field(default=None, ge=0)
+    cached_input_tokens: int | None = Field(default=None, ge=0)
+    cache_hit_ratio: float | None = Field(default=None, ge=0, le=1)
+    estimated_cost_usd: float | None = Field(default=None, ge=0)
+    latency_ms: float = Field(ge=0)
+    success: bool
+
+
 class GenerateResponse(GeneratedContent):
     source_url: HttpUrl
     page_title: str
+    generation_metrics: GenerationMetrics
 

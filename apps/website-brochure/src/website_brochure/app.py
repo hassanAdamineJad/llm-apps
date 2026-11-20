@@ -55,7 +55,7 @@ def create_app(
         try:
             generator = generator_factory()
             page = await page_fetcher(str(request.website_url))
-            generated = await generator.generate(page, request.category)
+            generation = await generator.generate(page, request.category)
         except ConfigurationError as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except PageFetchError as exc:
@@ -64,9 +64,10 @@ def create_app(
             raise HTTPException(status_code=502, detail=str(exc)) from exc
 
         return GenerateResponse(
-            **generated.model_dump(),
+            **generation.content.model_dump(),
             source_url=page.source_url,
             page_title=page.title,
+            generation_metrics=generation.metrics,
         )
 
     return application

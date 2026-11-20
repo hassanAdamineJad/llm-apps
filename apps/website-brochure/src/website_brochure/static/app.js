@@ -55,6 +55,17 @@ const intro = document.querySelector("#brochure-intro");
 const sections = document.querySelector("#brochure-sections");
 const cta = document.querySelector("#brochure-cta");
 const sourceLink = document.querySelector("#source-link");
+const generationMetrics = document.querySelector("#generation-metrics");
+const metricProvider = document.querySelector("#metric-provider");
+const metricModel = document.querySelector("#metric-model");
+const metricInputTokens = document.querySelector("#metric-input-tokens");
+const metricOutputTokens = document.querySelector("#metric-output-tokens");
+const metricTotalTokens = document.querySelector("#metric-total-tokens");
+const metricCachedInputTokens = document.querySelector("#metric-cached-input-tokens");
+const metricCacheHitRatio = document.querySelector("#metric-cache-hit-ratio");
+const metricEstimatedCost = document.querySelector("#metric-estimated-cost");
+const metricLatency = document.querySelector("#metric-latency");
+const metricStatus = document.querySelector("#metric-status");
 const accentColor = document.querySelector("#accent-color");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -88,6 +99,40 @@ function renderDocument(data, { example = false } = {}) {
   sourceLink.textContent = data.source_url;
   preview.classList.toggle("is-example", example);
   preview.setAttribute("aria-label", example ? "Example brochure" : "Generated brochure");
+}
+
+function metricValue(value) {
+  return value === null || value === undefined || value === "" ? "N/A" : String(value);
+}
+
+function renderGenerationMetrics(metrics) {
+  if (!metrics) {
+    generationMetrics.hidden = true;
+    return;
+  }
+
+  metricProvider.textContent = metricValue(metrics.provider);
+  metricModel.textContent = metricValue(metrics.model);
+  metricInputTokens.textContent = metricValue(metrics.input_tokens);
+  metricOutputTokens.textContent = metricValue(metrics.output_tokens);
+  metricTotalTokens.textContent = metricValue(metrics.total_tokens);
+  metricCachedInputTokens.textContent = metricValue(metrics.cached_input_tokens);
+  metricCacheHitRatio.textContent =
+    typeof metrics.cache_hit_ratio === "number"
+      ? `${(metrics.cache_hit_ratio * 100).toFixed(1)}%`
+      : "N/A";
+  metricEstimatedCost.textContent =
+    typeof metrics.estimated_cost_usd === "number"
+      ? `$${metrics.estimated_cost_usd.toFixed(6)}`
+      : "N/A";
+  metricLatency.textContent =
+    typeof metrics.latency_ms === "number" ? `${(metrics.latency_ms / 1000).toFixed(2)} s` : "N/A";
+  metricStatus.textContent =
+    metrics.success === true ? "Succeeded" : metrics.success === false ? "Failed" : "N/A";
+  metricStatus.classList.toggle("status-success", metrics.success === true);
+  metricStatus.classList.toggle("status-failed", metrics.success === false);
+  generationMetrics.open = false;
+  generationMetrics.hidden = false;
 }
 
 function contrastText(hex) {
@@ -173,6 +218,7 @@ function hideComposer() {
 function showGeneratedResult(data) {
   state.successfulResult = data;
   renderDocument(data);
+  renderGenerationMetrics(data.generation_metrics);
   summaryText.textContent = data.factual_summary;
   summaryDisclosure.open = false;
   sourceDomainLink.href = data.source_url;

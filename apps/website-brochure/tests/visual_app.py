@@ -8,7 +8,8 @@ from pathlib import Path
 
 from website_brochure.app import create_app
 from website_brochure.fetcher import PageContent, extract_readable_text
-from website_brochure.models import BrochureCategory, GeneratedContent
+from website_brochure.llm import GenerationResult
+from website_brochure.models import BrochureCategory, GeneratedContent, GenerationMetrics
 
 
 FIXTURE = Path(__file__).parent / "fixtures" / "example_page.html"
@@ -30,7 +31,7 @@ async def fixture_fetcher(url: str) -> PageContent:
 class VisualGenerator:
     async def generate(
         self, page: PageContent, category: BrochureCategory
-    ) -> GeneratedContent:
+    ) -> GenerationResult:
         if page.title == "short":
             sections = [
                 {
@@ -63,7 +64,7 @@ class VisualGenerator:
                 "learning to make clearer decisions together"
             )
 
-        return GeneratedContent.model_validate(
+        content = GeneratedContent.model_validate(
             {
                 "status": "ready",
                 "factual_summary": (
@@ -82,6 +83,19 @@ class VisualGenerator:
                 "feedback": None,
             }
         )
+        metrics = GenerationMetrics(
+            provider="openai",
+            model="gpt-4.1-mini",
+            input_tokens=1840,
+            output_tokens=462,
+            total_tokens=2302,
+            cached_input_tokens=1380,
+            cache_hit_ratio=0.75,
+            estimated_cost_usd=0.0010612,
+            latency_ms=2380,
+            success=True,
+        )
+        return GenerationResult(content, metrics)
 
 
 app = create_app(

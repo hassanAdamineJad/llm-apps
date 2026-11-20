@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Turn one public web page into a factual, printable brochure." />
+    <meta
+      name="description"
+      content="Turn one public web page into a factual, printable brochure."
+    />
     <title>Website Brochure</title>
     <link rel="stylesheet" href="/static/styles.css" />
     <script src="/static/app.js" defer></script>
@@ -40,7 +43,13 @@
                 autocomplete="url"
                 aria-describedby="form-error"
               />
-              <p id="form-error" class="form-error" role="alert" tabindex="-1" hidden></p>
+              <p
+                id="form-error"
+                class="form-error"
+                role="alert"
+                tabindex="-1"
+                hidden
+              ></p>
             </div>
 
             <div class="field-group category-group">
@@ -48,8 +57,12 @@
               <div class="select-wrap">
                 <select id="category" name="category">
                   <option value="business_overview">Business Overview</option>
-                  <option value="product_service_spotlight">Product or Service Spotlight</option>
-                  <option value="event_program_overview">Event or Program Overview</option>
+                  <option value="product_service_spotlight">
+                    Product or Service Spotlight
+                  </option>
+                  <option value="event_program_overview">
+                    Event or Program Overview
+                  </option>
                 </select>
               </div>
             </div>
@@ -59,17 +72,31 @@
               <span class="spinner" aria-hidden="true"></span>
             </button>
 
-            <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+            <p
+              id="form-status"
+              class="form-status"
+              role="status"
+              aria-live="polite"
+            ></p>
           </form>
         </section>
 
-        <section id="preview-workspace" class="preview-workspace" aria-label="Brochure preview">
+        <section
+          id="preview-workspace"
+          class="preview-workspace"
+          aria-label="Brochure preview"
+        >
           <header id="workspace-bar" class="workspace-bar" hidden>
             <div class="source-identity">
               <span class="source-mark" aria-hidden="true"></span>
               <div>
                 <span class="meta-label">Source</span>
-                <a id="source-domain-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+                <a
+                  id="source-domain-link"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                ></a>
               </div>
             </div>
 
@@ -78,40 +105,84 @@
               <div class="summary-popover"><p id="summary-text"></p></div>
             </details>
 
-            <div id="workspace-progress" class="workspace-progress" role="status" aria-live="polite" hidden>
+            <div
+              id="workspace-progress"
+              class="workspace-progress"
+              role="status"
+              aria-live="polite"
+              hidden
+            >
               <span class="progress-dot" aria-hidden="true"></span>
               Drafting replacement…
             </div>
 
             <div class="workspace-actions">
-              <button id="edit-source-button" class="text-button" type="button">Edit source</button>
-              <button id="print-button" class="print-button" type="button">Print / Save PDF</button>
+              <button id="edit-source-button" class="text-button" type="button">
+                Edit source
+              </button>
+              <button id="print-button" class="print-button" type="button">
+                Print / Save PDF
+              </button>
             </div>
           </header>
 
           <div class="document-stage">
-            <aside id="appearance-panel" class="appearance-panel" aria-label="Brochure appearance" hidden>
+            <aside
+              id="appearance-panel"
+              class="appearance-panel"
+              aria-label="Brochure appearance"
+              hidden
+            >
               <div class="appearance-group">
                 <h2>Layout</h2>
-                <div class="theme-grid" role="group" aria-label="Brochure layout">
-                  <button class="theme-card selected" type="button" data-theme="minimal" aria-pressed="true">
-                    <span class="theme-thumbnail mini-minimal" aria-hidden="true">
-                      <span class="mini-kicker"></span><span class="mini-title"></span>
-                      <span class="mini-rule"></span><span class="mini-copy"></span>
+                <div
+                  class="theme-grid"
+                  role="group"
+                  aria-label="Brochure layout"
+                >
+                  <button
+                    class="theme-card selected"
+                    type="button"
+                    data-theme="minimal"
+                    aria-pressed="true"
+                  >
+                    <span
+                      class="theme-thumbnail mini-minimal"
+                      aria-hidden="true"
+                    >
+                      <span class="mini-kicker"></span
+                      ><span class="mini-title"></span>
+                      <span class="mini-rule"></span
+                      ><span class="mini-copy"></span>
                       <span class="mini-copy short"></span>
                     </span>
                     <span>Minimal</span>
                   </button>
-                  <button class="theme-card" type="button" data-theme="corporate" aria-pressed="false">
-                    <span class="theme-thumbnail mini-corporate" aria-hidden="true">
-                      <span class="mini-band"></span><span class="mini-title"></span>
+                  <button
+                    class="theme-card"
+                    type="button"
+                    data-theme="corporate"
+                    aria-pressed="false"
+                  >
+                    <span
+                      class="theme-thumbnail mini-corporate"
+                      aria-hidden="true"
+                    >
+                      <span class="mini-band"></span
+                      ><span class="mini-title"></span>
                       <span class="mini-columns"><i></i><i></i></span>
                     </span>
                     <span>Corporate</span>
                   </button>
-                  <button class="theme-card" type="button" data-theme="bold" aria-pressed="false">
+                  <button
+                    class="theme-card"
+                    type="button"
+                    data-theme="bold"
+                    aria-pressed="false"
+                  >
                     <span class="theme-thumbnail mini-bold" aria-hidden="true">
-                      <span class="mini-block"></span><span class="mini-title"></span>
+                      <span class="mini-block"></span
+                      ><span class="mini-title"></span>
                       <span class="mini-copy"></span>
                     </span>
                     <span>Bold</span>
@@ -122,10 +193,38 @@
               <fieldset class="appearance-group accent-group">
                 <legend>Accent</legend>
                 <div class="swatch-row">
-                  <button class="color-swatch selected" type="button" data-color="#c85c3c" aria-label="Terracotta accent" aria-pressed="true" style="--swatch: #c85c3c"></button>
-                  <button class="color-swatch" type="button" data-color="#245c4f" aria-label="Forest accent" aria-pressed="false" style="--swatch: #245c4f"></button>
-                  <button class="color-swatch" type="button" data-color="#365f91" aria-label="Blue accent" aria-pressed="false" style="--swatch: #365f91"></button>
-                  <button class="color-swatch" type="button" data-color="#d5a52e" aria-label="Ochre accent" aria-pressed="false" style="--swatch: #d5a52e"></button>
+                  <button
+                    class="color-swatch selected"
+                    type="button"
+                    data-color="#c85c3c"
+                    aria-label="Terracotta accent"
+                    aria-pressed="true"
+                    style="--swatch: #c85c3c"
+                  ></button>
+                  <button
+                    class="color-swatch"
+                    type="button"
+                    data-color="#245c4f"
+                    aria-label="Forest accent"
+                    aria-pressed="false"
+                    style="--swatch: #245c4f"
+                  ></button>
+                  <button
+                    class="color-swatch"
+                    type="button"
+                    data-color="#365f91"
+                    aria-label="Blue accent"
+                    aria-pressed="false"
+                    style="--swatch: #365f91"
+                  ></button>
+                  <button
+                    class="color-swatch"
+                    type="button"
+                    data-color="#d5a52e"
+                    aria-label="Ochre accent"
+                    aria-pressed="false"
+                    style="--swatch: #d5a52e"
+                  ></button>
                   <label class="custom-color" aria-label="Custom accent color">
                     <input id="accent-color" type="color" value="#c85c3c" />
                     <span aria-hidden="true">+</span>
@@ -137,7 +236,11 @@
             <div class="document-column">
               <div id="example-label" class="example-label">Example</div>
               <div class="paper-edge">
-                <article id="brochure-preview" class="brochure theme-minimal is-example" aria-label="Example brochure">
+                <article
+                  id="brochure-preview"
+                  class="brochure theme-minimal is-example"
+                  aria-label="Example brochure"
+                >
                   <header class="brochure-masthead">
                     <p class="brochure-kicker">Overview</p>
                     <h2 id="brochure-headline"></h2>
@@ -146,11 +249,66 @@
                   <div id="brochure-sections" class="brochure-sections"></div>
                   <p id="brochure-cta" class="brochure-cta" hidden></p>
                   <footer class="brochure-source">
-                    <span>Source</span>
-                    <a id="source-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+                    <span>Source123</span>
+                    <a
+                      id="source-link"
+                      href="#"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    ></a>
                   </footer>
                 </article>
               </div>
+
+              <details
+                id="generation-metrics"
+                class="generation-metrics"
+                hidden
+              >
+                <summary>Generation metrics</summary>
+                <dl class="metrics-grid">
+                  <div>
+                    <dt>Provider</dt>
+                    <dd id="metric-provider"></dd>
+                  </div>
+                  <div class="metric-model">
+                    <dt>Model</dt>
+                    <dd id="metric-model"></dd>
+                  </div>
+                  <div>
+                    <dt>Input tokens</dt>
+                    <dd id="metric-input-tokens"></dd>
+                  </div>
+                  <div>
+                    <dt>Output tokens</dt>
+                    <dd id="metric-output-tokens"></dd>
+                  </div>
+                  <div>
+                    <dt>Total tokens</dt>
+                    <dd id="metric-total-tokens"></dd>
+                  </div>
+                  <div>
+                    <dt>Cached tokens</dt>
+                    <dd id="metric-cached-input-tokens"></dd>
+                  </div>
+                  <div>
+                    <dt>Cache hit</dt>
+                    <dd id="metric-cache-hit-ratio"></dd>
+                  </div>
+                  <div>
+                    <dt>Est. API cost</dt>
+                    <dd id="metric-estimated-cost"></dd>
+                  </div>
+                  <div>
+                    <dt>Latency</dt>
+                    <dd id="metric-latency"></dd>
+                  </div>
+                  <div>
+                    <dt>Status</dt>
+                    <dd id="metric-status"></dd>
+                  </div>
+                </dl>
+              </details>
             </div>
           </div>
         </section>

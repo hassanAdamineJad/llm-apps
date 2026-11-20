@@ -88,6 +88,10 @@ Ollama works without an OpenAI key. `OLLAMA_BASE_URL` is operator-controlled and
 
 Restart the Python app after changing `.env`; configuration is read by the server for generation requests, and restarting makes the active settings unambiguous. If you change or pull an Ollama model, make sure `OLLAMA_MODEL` still exactly matches `ollama list`.
 
+## Cost estimates
+
+Generation metrics estimate standard OpenAI text-token cost for the explicitly priced `gpt-4.1` and `gpt-4.1-mini` aliases and snapshots. Rates were verified against the [OpenAI API pricing page](https://developers.openai.com/api/docs/pricing) on 2026-11-20. Estimates include regular input, cached input, and output tokens; they exclude account-specific discounts, taxes, regional uplifts, and non-token charges. Unknown models, missing usage, and Ollama report cost as unavailable.
+
 ## Run
 
 With the virtual environment active:

@@ -4,7 +4,15 @@ import httpx
 import pytest
 
 from website_brochure.fetcher import PageContent
-from website_brochure.llm import OllamaGenerator, OpenAIGenerator, ProviderError
+from website_brochure.llm import (
+    OllamaGenerator,
+    OpenAIGenerator,
+    ProviderError,
+    _TokenUsage,
+    _estimate_openai_cost_usd,
+    _extract_ollama_usage,
+    _extract_openai_usage,
+)
 from website_brochure.models import BrochureCategory
 
 
@@ -40,6 +48,105 @@ MODEL_OUTPUT = {
 }
 
 
+def test_extracts_provider_token_usage() -> None:
+    openai_usage = _extract_openai_usage(
+        {
+            "usage": {
+                "input_tokens": 120,
+                "output_tokens": 45,
+                "total_tokens": 165,
+                "input_tokens_details": {"cached_tokens": 60},
+            }
+        }
+    )
+    ollama_usage = _extract_ollama_usage(
+        {
+            "prompt_eval_count": 80,
+            "prompt_eval_cached_count": 20,
+            "eval_count": 30,
+        }
+    )
+
+    assert (openai_usage.input_tokens, openai_usage.output_tokens) == (120, 45)
+    assert openai_usage.total_tokens == 165
+    assert openai_usage.cached_input_tokens == 60
+    assert (ollama_usage.input_tokens, ollama_usage.output_tokens) == (80, 30)
+    assert ollama_usage.total_tokens == 110
+    assert ollama_usage.cached_input_tokens == 20
+
+
+@pytest.mark.parametrize(
+    ("extractor", "body"),
+    [
+        (_extract_openai_usage, {}),
+        (_extract_openai_usage, {"usage": {"input_tokens": "unknown"}}),
+        (_extract_ollama_usage, {}),
+        (_extract_ollama_usage, {"prompt_eval_count": 20}),
+    ],
+)
+def test_unavailable_usage_is_not_estimated(extractor, body) -> None:
+    usage = extractor(body)
+
+    if body == {"prompt_eval_count": 20}:
+        assert usage.input_tokens == 20
+    else:
+        assert usage.input_tokens is None
+    assert usage.output_tokens is None
+    assert usage.total_tokens is None
+    assert usage.cached_input_tokens is None
+
+
+@pytest.mark.parametrize(
+    ("model", "usage", "expected_cost"),
+    [
+        (
+            "gpt-4.1-mini",
+            _TokenUsage(
+                input_tokens=1_000,
+                output_tokens=500,
+                total_tokens=1_500,
+                cached_input_tokens=200,
+            ),
+            0.00114,
+        ),
+        (
+            "gpt-4.1-mini",
+            _TokenUsage(
+                input_tokens=1_000,
+                output_tokens=500,
+                total_tokens=1_500,
+                cached_input_tokens=0,
+            ),
+            0.0012,
+        ),
+        (
+            "unpriced-model",
+            _TokenUsage(
+                input_tokens=1_000,
+                output_tokens=500,
+                total_tokens=1_500,
+                cached_input_tokens=0,
+            ),
+            None,
+        ),
+        (
+            "gpt-4.1-mini",
+            _TokenUsage(input_tokens=1_000, cached_input_tokens=0),
+            None,
+        ),
+        (
+            "gpt-4.1-mini",
+            _TokenUsage(input_tokens=1_000, output_tokens=500),
+            None,
+        ),
+    ],
+)
+def test_openai_cost_estimate_requires_pricing_and_usage(
+    model, usage, expected_cost
+) -> None:
+    assert _estimate_openai_cost_usd(model, usage) == expected_cost
+
+
 def _install_mock_transport(
     monkeypatch: pytest.MonkeyPatch, handler
 ) -> None:
@@ -66,6 +173,12 @@ async def test_openai_generation_uses_responses_schema_and_category(
         return httpx.Response(
             200,
             json={
+                "usage": {
+                    "input_tokens": 120,
+                    "output_tokens": 45,
+                    "total_tokens": 165,
+                    "input_tokens_details": {"cached_tokens": 60},
+                },
                 "output": [
                     {
                         "type": "message",
@@ -78,11 +191,18 @@ async def test_openai_generation_uses_responses_schema_and_category(
         )
 
     _install_mock_transport(monkeypatch, handler)
-    generator = OpenAIGenerator("test-key", "test-model")
+    generator = OpenAIGenerator("test-key", "gpt-4.1-mini")
 
     result = await generator.generate(PAGE, BrochureCategory.SPOTLIGHT)
 
-    assert result.status == "ready"
+    assert result.content.status == "ready"
+    assert result.metrics.input_tokens == 120
+    assert result.metrics.output_tokens == 45
+    assert result.metrics.total_tokens == 165
+    assert result.metrics.cached_input_tokens == 60
+    assert result.metrics.cache_hit_ratio == 0.5
+    assert result.metrics.estimated_cost_usd == 0.000102
+    assert result.metrics.success is True
     assert seen_payload is not None
     assert seen_payload["text"]["format"]["strict"] is True
     assert "Product or Service Spotlight" in seen_payload["input"][1]["content"][0]["text"]
@@ -101,7 +221,12 @@ async def test_ollama_generation_needs_no_openai_key_and_sends_category(
         assert "Authorization" not in request.headers
         return httpx.Response(
             200,
-            json={"message": {"content": json.dumps(MODEL_OUTPUT)}},
+            json={
+                "message": {"content": json.dumps(MODEL_OUTPUT)},
+                "prompt_eval_count": 80,
+                "prompt_eval_cached_count": 0,
+                "eval_count": 30,
+            },
         )
 
     _install_mock_transport(monkeypatch, handler)
@@ -109,7 +234,13 @@ async def test_ollama_generation_needs_no_openai_key_and_sends_category(
 
     result = await generator.generate(PAGE, BrochureCategory.EVENT)
 
-    assert result.status == "ready"
+    assert result.content.status == "ready"
+    assert result.metrics.input_tokens == 80
+    assert result.metrics.output_tokens == 30
+    assert result.metrics.total_tokens == 110
+    assert result.metrics.cached_input_tokens == 0
+    assert result.metrics.cache_hit_ratio == 0.0
+    assert result.metrics.estimated_cost_usd is None
     assert seen_payload is not None
     assert seen_payload["model"] == "llama3.2:3b"
     assert "Event or Program Overview" in seen_payload["messages"][1]["content"]
