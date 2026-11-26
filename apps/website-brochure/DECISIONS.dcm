@@ -48,3 +48,11 @@
 
 **Trade-off:** The estimate must be reviewed when pricing changes and intentionally excludes account-specific discounts, regional uplifts, taxes, and non-token charges.
 
+## 2026-11-21 — Compare configured models with one source fetch
+
+**Decision:** Model comparison is an optional route and browser workspace layered on the existing provider boundary. The server fetches a page once, passes the same immutable extracted content and category to two configured generators concurrently, and returns an independent result envelope for each.
+
+**Reason:** Reusing the provider implementations and metrics keeps the comparison meaningful and small while preserving the original single-model workflow.
+
+**Trade-off:** Version 1 compares the one configured model per provider, stores no ratings or history, and cannot expose generation metrics for a provider call that fails before returning a successful result.
+

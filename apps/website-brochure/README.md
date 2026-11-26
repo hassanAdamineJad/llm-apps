@@ -7,6 +7,8 @@ Website Brochure reads one public HTML page and asks either OpenAI or a local Ol
 
 The browser renders that structured copy with app-owned HTML and CSS. You can switch the Minimal, Corporate, and Bold themes or change the accent color without fetching the page or calling the model again. Printing uses the browser dialog and includes only the brochure and source link.
 
+An optional comparison mode appears when both an OpenAI model and an Ollama model are configured. It fetches and extracts the submitted page once, sends the same content and category to both providers, and displays the two drafts and their generation metrics side by side. Manual quality ratings are browser-only and are not stored.
+
 Version 1 reads only the submitted page. It does not crawl linked pages or execute page JavaScript. Sparse and JavaScript-only sites can therefore be rejected with guidance rather than supplemented with invented details.
 
 ## Prerequisites
@@ -48,6 +50,8 @@ OLLAMA_MODEL=
 ```
 
 `OPENAI_API_KEY` and `OPENAI_MODEL` are validated only when OpenAI is selected. The key is sent from the server directly to OpenAI and never exposed to browser JavaScript.
+
+To enable model comparison, configure both the OpenAI and Ollama values even though `LLM_PROVIDER` still determines the provider used by the normal single-model workflow.
 
 ## Option B: Ollama
 
@@ -109,6 +113,8 @@ Open <http://127.0.0.1:8000>. This single command serves both the FastAPI endpoi
 3. Select **Generate brochure**.
 4. Compare the factual page summary with the brochure preview.
 5. Switch to **Corporate** or **Bold**, choose another accent color, then select **Print / Save PDF**.
+
+For comparison, enable **Compare two models**, choose two configured options, and submit. Comparison keeps provider errors independent, so one successful draft remains reviewable when the other provider fails.
 
 The precise copy depends on the chosen model. The app instructs the model to omit unsupported calls to action and never fill gaps with prices, testimonials, dates, contact details, or product claims. Review generated copy before publishing it.
 

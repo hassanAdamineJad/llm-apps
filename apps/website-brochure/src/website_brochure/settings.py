@@ -82,3 +82,24 @@ class Settings:
                 "OLLAMA_BASE_URL must be a valid http:// or https:// URL."
             )
 
+    def configured_models(self) -> tuple[tuple[ProviderName, str], ...]:
+        """Return safe, selectable models without exposing provider credentials."""
+        configured: list[tuple[ProviderName, str]] = []
+        for provider, model in (
+            (ProviderName.OPENAI, self.openai_model),
+            (ProviderName.OLLAMA, self.ollama_model),
+        ):
+            candidate = Settings(
+                provider=provider,
+                openai_api_key=self.openai_api_key,
+                openai_model=self.openai_model,
+                ollama_base_url=self.ollama_base_url,
+                ollama_model=self.ollama_model,
+            )
+            try:
+                candidate.validate_selected_provider()
+            except ConfigurationError:
+                continue
+            configured.append((provider, model))
+        return tuple(configured)
+

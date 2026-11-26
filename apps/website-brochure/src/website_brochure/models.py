@@ -25,6 +25,32 @@ class GenerateRequest(BaseModel):
     category: BrochureCategory
 
 
+class ModelSelection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["openai", "ollama"]
+    model: str = Field(min_length=1, max_length=200)
+
+
+class ModelOption(ModelSelection):
+    label: str = Field(min_length=1, max_length=240)
+
+
+class AvailableModelsResponse(BaseModel):
+    models: list[ModelOption]
+
+
+class CompareRequest(GenerateRequest):
+    models: list[ModelSelection] = Field(min_length=2, max_length=2)
+
+    @model_validator(mode="after")
+    def require_distinct_models(self) -> "CompareRequest":
+        selections = {(item.provider, item.model) for item in self.models}
+        if len(selections) != 2:
+            raise ValueError("Choose two different models to compare.")
+        return self
+
+
 class BrochureSection(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -82,4 +108,24 @@ class GenerateResponse(GeneratedContent):
     source_url: HttpUrl
     page_title: str
     generation_metrics: GenerationMetrics
+
+
+class ComparisonResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selection: ModelSelection
+    generation: GenerateResponse | None = None
+    error: str | None = None
+
+    @model_validator(mode="after")
+    def require_generation_or_error(self) -> "ComparisonResult":
+        if (self.generation is None) == (self.error is None):
+            raise ValueError("A comparison result requires one generation or one error.")
+        return self
+
+
+class CompareResponse(BaseModel):
+    source_url: HttpUrl
+    page_title: str
+    results: list[ComparisonResult] = Field(min_length=2, max_length=2)
 

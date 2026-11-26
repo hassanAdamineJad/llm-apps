@@ -11,7 +11,7 @@ from pydantic import ValidationError
 
 from website_brochure.fetcher import PageContent
 from website_brochure.models import BrochureCategory, GeneratedContent, GenerationMetrics
-from website_brochure.settings import ProviderName, Settings
+from website_brochure.settings import ConfigurationError, ProviderName, Settings
 
 
 LOGGER = logging.getLogger("uvicorn.error")
@@ -334,4 +334,20 @@ def create_generator(settings: Settings) -> BrochureGenerator:
     if settings.provider is ProviderName.OPENAI:
         return OpenAIGenerator(settings.openai_api_key, settings.openai_model)
     return OllamaGenerator(settings.ollama_base_url, settings.ollama_model)
+
+
+def create_generator_for(
+    settings: Settings, provider: ProviderName, model: str
+) -> BrochureGenerator:
+    """Create only an explicitly configured provider/model combination."""
+    if (provider, model) not in settings.configured_models():
+        raise ConfigurationError("The selected comparison model is not configured.")
+    selected = Settings(
+        provider=provider,
+        openai_api_key=settings.openai_api_key,
+        openai_model=settings.openai_model,
+        ollama_base_url=settings.ollama_base_url,
+        ollama_model=settings.ollama_model,
+    )
+    return create_generator(selected)
 

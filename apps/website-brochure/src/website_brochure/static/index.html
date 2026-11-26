@@ -67,6 +67,34 @@
               </div>
             </div>
 
+            <div class="comparison-control">
+              <label class="comparison-toggle" for="compare-models">
+                <input id="compare-models" type="checkbox" disabled />
+                <span>Compare two models</span>
+              </label>
+              <p id="comparison-availability" class="field-help" role="status">
+                Loading configured models…
+              </p>
+            </div>
+
+            <fieldset id="comparison-options" class="comparison-options" hidden>
+              <legend>Models to compare</legend>
+              <div class="comparison-selects">
+                <label for="comparison-model-a">
+                  Model A
+                  <span class="select-wrap">
+                    <select id="comparison-model-a"></select>
+                  </span>
+                </label>
+                <label for="comparison-model-b">
+                  Model B
+                  <span class="select-wrap">
+                    <select id="comparison-model-b"></select>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
             <button id="generate-button" class="primary-button" type="submit">
               <span class="button-label">Generate brochure</span>
               <span class="spinner" aria-hidden="true"></span>
@@ -311,6 +339,33 @@
               </details>
             </div>
           </div>
+        </section>
+
+        <section
+          id="comparison-workspace"
+          class="comparison-workspace"
+          aria-labelledby="comparison-title"
+          hidden
+        >
+          <header class="comparison-bar">
+            <div>
+              <span class="meta-label">Source</span>
+              <a
+                id="comparison-source-link"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+              ></a>
+            </div>
+            <button id="comparison-edit-button" class="text-button" type="button">
+              Edit source
+            </button>
+          </header>
+          <div class="comparison-heading">
+            <h2 id="comparison-title">Model comparison</h2>
+            <p>Review both drafts and rate their usefulness manually.</p>
+          </div>
+          <div id="comparison-results" class="comparison-results"></div>
         </section>
       </div>
     </main>

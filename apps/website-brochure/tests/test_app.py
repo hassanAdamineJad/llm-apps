@@ -5,8 +5,13 @@ from fastapi.testclient import TestClient
 from website_brochure.app import create_app
 from website_brochure.fetcher import PageContent, PageFetchError, extract_readable_text, fetch_page
 from website_brochure.llm import GenerationResult, ProviderError
-from website_brochure.models import BrochureCategory, GeneratedContent, GenerationMetrics
-from website_brochure.settings import ConfigurationError
+from website_brochure.models import (
+    BrochureCategory,
+    GeneratedContent,
+    GenerationMetrics,
+    ModelOption,
+)
+from website_brochure.settings import ConfigurationError, ProviderName
 
 
 FIXTURE = Path(__file__).parent / "fixtures" / "example_page.html"
@@ -73,6 +78,8 @@ def test_ui_is_served() -> None:
     assert "Cached tokens" in response.text
     assert "Cache hit" in response.text
     assert "Est. API cost" in response.text
+    assert "Compare two models" in response.text
+    assert "Model comparison" in response.text
 
 
 def test_frontend_keeps_rendering_safe_and_appearance_changes_local() -> None:
@@ -81,7 +88,9 @@ def test_frontend_keeps_rendering_safe_and_appearance_changes_local() -> None:
     styles = (static_dir / "styles.css").read_text()
 
     assert "innerHTML" not in script
-    assert script.count('fetch("/api/generate"') == 1
+    assert '"/api/generate"' in script
+    assert '"/api/compare"' in script
+    assert 'fetch("/api/models")' in script
     assert "applyTheme(button.dataset.theme)" in script
     assert "applyAccent(accentColor.value)" in script
     assert "renderGenerationMetrics(data.generation_metrics)" in script
@@ -91,6 +100,91 @@ def test_frontend_keeps_rendering_safe_and_appearance_changes_local() -> None:
     assert 'value === null || value === undefined || value === ""' in script
     assert "@media (max-width: 640px)" in styles
     assert "@media print" in styles
+    assert ".comparison-results" in styles
+
+
+def test_models_endpoint_returns_only_safe_selection_data() -> None:
+    options = [
+        ModelOption(provider="openai", model="gpt-test", label="OpenAI · gpt-test"),
+        ModelOption(provider="ollama", model="local-test", label="Ollama · local-test"),
+    ]
+    client = TestClient(create_app(model_catalog=lambda: options))
+
+    response = client.get("/api/models")
+
+    assert response.status_code == 200
+    assert response.json() == {"models": [option.model_dump() for option in options]}
+    assert "api_key" not in response.text
+
+
+def test_comparison_fetches_once_reuses_content_and_isolates_errors() -> None:
+    fetch_count = 0
+    seen_pages: list[int] = []
+
+    async def fixture_fetcher(url: str) -> PageContent:
+        nonlocal fetch_count
+        fetch_count += 1
+        return extract_readable_text(FIXTURE.read_bytes(), url)
+
+    class ComparisonGenerator:
+        def __init__(self, provider: ProviderName, model: str) -> None:
+            self.provider = provider
+            self.model = model
+
+        async def generate(self, page, category):
+            seen_pages.append(id(page))
+            if self.provider is ProviderName.OLLAMA:
+                raise ProviderError("Ollama test failure.")
+            result = await FakeGenerator().generate(page, category)
+            metrics = result.metrics.model_copy(update={"model": self.model})
+            return GenerationResult(result.content, metrics)
+
+    client = TestClient(
+        create_app(
+            page_fetcher=fixture_fetcher,
+            comparison_generator_factory=ComparisonGenerator,
+        )
+    )
+    response = client.post(
+        "/api/compare",
+        json={
+            "website_url": "https://example.com/program",
+            "category": "business_overview",
+            "models": [
+                {"provider": "openai", "model": "gpt-test"},
+                {"provider": "ollama", "model": "local-test"},
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert fetch_count == 1
+    assert len(seen_pages) == 2
+    assert len(set(seen_pages)) == 1
+    results = response.json()["results"]
+    assert results[0]["generation"]["brochure"]["headline"] == (
+        "Practical learning for product teams"
+    )
+    assert results[0]["generation"]["generation_metrics"]["model"] == "gpt-test"
+    assert results[0]["error"] is None
+    assert results[1]["generation"] is None
+    assert results[1]["error"] == "Ollama test failure."
+
+
+def test_comparison_requires_two_distinct_models() -> None:
+    client = TestClient(create_app())
+    selection = {"provider": "openai", "model": "same-model"}
+
+    response = client.post(
+        "/api/compare",
+        json={
+            "website_url": "https://example.com/program",
+            "category": "business_overview",
+            "models": [selection, selection],
+        },
+    )
+
+    assert response.status_code == 422
 
 
 def test_generation_with_fixture_page_and_fake_provider() -> None:

@@ -1,6 +1,11 @@
 import pytest
 
-from website_brochure.llm import OllamaGenerator, OpenAIGenerator, create_generator
+from website_brochure.llm import (
+    OllamaGenerator,
+    OpenAIGenerator,
+    create_generator,
+    create_generator_for,
+)
 from website_brochure.settings import ConfigurationError, ProviderName, Settings
 
 
@@ -61,4 +66,38 @@ def test_generator_factory_follows_selected_provider() -> None:
 
     assert isinstance(create_generator(openai), OpenAIGenerator)
     assert isinstance(create_generator(ollama), OllamaGenerator)
+
+
+def test_configured_models_include_each_valid_provider() -> None:
+    settings = Settings.from_env(
+        {
+            "LLM_PROVIDER": "openai",
+            "OPENAI_API_KEY": "test-key",
+            "OPENAI_MODEL": "gpt-test",
+            "OLLAMA_BASE_URL": "http://localhost:11434",
+            "OLLAMA_MODEL": "local-test",
+        }
+    )
+
+    assert settings.configured_models() == (
+        (ProviderName.OPENAI, "gpt-test"),
+        (ProviderName.OLLAMA, "local-test"),
+    )
+    assert isinstance(
+        create_generator_for(settings, ProviderName.OLLAMA, "local-test"),
+        OllamaGenerator,
+    )
+
+
+def test_comparison_factory_rejects_unconfigured_model() -> None:
+    settings = Settings.from_env(
+        {
+            "LLM_PROVIDER": "ollama",
+            "OLLAMA_BASE_URL": "http://localhost:11434",
+            "OLLAMA_MODEL": "local-test",
+        }
+    )
+
+    with pytest.raises(ConfigurationError, match="not configured"):
+        create_generator_for(settings, ProviderName.OLLAMA, "other-model")
 
